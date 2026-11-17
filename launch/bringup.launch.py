@@ -50,6 +50,9 @@ def generate_launch_description():
         # Laser projector flags (see laser_intent README).
         DeclareLaunchArgument("render_rate_hz", default_value="30"),
         DeclareLaunchArgument("stream_frames", default_value="true"),
+        DeclareLaunchArgument("path_style", default_value="rails"),  # rails|chevrons|none
+        DeclareLaunchArgument("turn_arrow", default_value="false"),
+        DeclareLaunchArgument("stop_line", default_value="false"),
     ]
 
     robot = [
@@ -80,8 +83,8 @@ def generate_launch_description():
                 {"rviz_config": os.path.join(nav_share, "rviz", "nav2_odom_view.rviz")},
                 condition=IfCondition(arg("rviz"))),
         include("laser_projection_ros", "laser_projection.launch.py",
-                {"render_rate_hz": arg("render_rate_hz"),
-                 "stream_frames": arg("stream_frames")},
+                {name: arg(name) for name in ("render_rate_hz", "stream_frames",
+                                              "path_style", "turn_arrow", "stop_line")},
                 condition=IfCondition(arg("laser_projector"))),
     ])
 
