@@ -75,7 +75,9 @@ controller_server:
       stateful: true
       debug_trajectory_details: false
 
-      critics: ["RotateToGoal", "Oscillation", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # BaseObstacle makes DWB reject trajectories through lethal costmap cells.
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      BaseObstacle.scale: 0.02
 
       GoalAlign.scale: 24.0
       GoalAlign.forward_point_distance: 0.1
@@ -234,12 +236,13 @@ collision_monitor:
     use_sim_time: false
     base_frame_id: "base_link"
     odom_frame_id: "odom"
-    cmd_vel_in_topic: "cmd_vel_smoothed"
+    # No velocity_smoother: controller and behaviors publish cmd_vel_nav directly.
+    cmd_vel_in_topic: "cmd_vel_nav"
     cmd_vel_out_topic: "cmd_vel"
     transform_tolerance: 0.2
     source_timeout: 1.0
     base_shift_tolerance: 0.04
-    polygons: ["stop_polygon"]
+    polygons: ["stop_polygon", "slowdown_polygon"]
     stop_polygon:
       type: "circle"
       radius: 0.45
@@ -247,6 +250,15 @@ collision_monitor:
       min_points: 4
       visualize: true
       polygon_pub_topic: "polygon_stop"
+    # At 0.5 m/s the stop circle only reaches ~14 cm past the bumper; slow down earlier.
+    slowdown_polygon:
+      type: "circle"
+      radius: 0.8
+      action_type: "slowdown"
+      slowdown_ratio: 0.3
+      min_points: 4
+      visualize: true
+      polygon_pub_topic: "polygon_slowdown"
     observation_sources: ["scan"]
     scan:
       type: "scan"

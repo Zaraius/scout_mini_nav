@@ -69,7 +69,9 @@ def generate_launch_description():
     # Start the consumers once odometry/lidar/TF are up, to avoid a burst of
     # "frame does not exist" warnings while they wait for TF.
     consumers = TimerAction(period=3.0, actions=[
-        include("slam_toolbox", "online_async_launch.py", {"use_sim_time": "false"},
+        include("slam_toolbox", "online_async_launch.py",
+                {"use_sim_time": "false",
+                 "slam_params_file": os.path.join(nav_share, "config", "slam_params.yaml")},
                 condition=IfCondition(arg("slam"))),
         include("scout_mini_nav", "custom_navigation.launch.py",
                 {"params_file": os.path.join(nav_share, "config", "nav2_params.yaml"),
